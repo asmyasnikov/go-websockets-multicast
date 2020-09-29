@@ -28,7 +28,7 @@ type Multicast struct {
 }
 
 // Creates new Multicast with empty connections and channels
-func NewMulticast(snapshot interface{}, ignoreDelays ...bool) *Multicast {
+func New(snapshot interface{}, ignoreDelays ...bool) *Multicast {
 	return &Multicast{
 		connections: make(map[*websocket.Conn]chan []byte),
 		channels:    make(map[chan []byte]chan struct{}),

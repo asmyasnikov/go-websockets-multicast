@@ -47,7 +47,7 @@ func TestMulticast_UpdateSnapshot(t *testing.T) {
 
 	snapshot1 := *NewTestData(&field11, &field21)
 	snapshot2 := *NewTestData(&field12, &field22)
-	m := NewMulticast(snapshot1)
+	m := New(snapshot1)
 	require.Equal(t, snapshot1, m.snapshot)
 
 	m.updateSnapshot(snapshot2)
@@ -61,13 +61,13 @@ func TestMulticast_Json(t *testing.T) {
 	)
 
 	snapshot := *NewTestData(&field1, &field2)
-	m := NewMulticast(snapshot)
+	m := New(snapshot)
 	require.Equal(t, `{"field_1":10,"field_2":"test"}`, string(m.Json(snapshot)))
 }
 
 func TestMulticast_Send(t *testing.T) {
 	snapshot := *NewEmptyData()
-	m := NewMulticast(snapshot)
+	m := New(snapshot)
 	require.Equal(t, snapshot, m.snapshot)
 
 	s := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {

@@ -3,6 +3,15 @@ golang package provide multicast sending messages to all connected clients
 
 Usage:
 ```go
+package main
+
+import (
+    multicast "github.com/asmyasnikov/go-websockets-multicast"
+    "github.com/gorilla/websocket"
+	"net/http"
+    "fmt"
+    "time"
+)
 
 var (
 	upgrader = websocket.Upgrader{
@@ -18,11 +27,11 @@ func main() {
             m.SendAll(time.Now())
             time.Sleep(time.Second)
         }
-    }
-    http.Handle("/", func(w http.ResponseWriter, r *http.Request) {
+    }()
+    http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		conn, err := upgrader.Upgrade(w, r, nil)
 		if err != nil {
-			log.Error().Caller().Err(err).Msg("Connection")
+			fmt.Println(err)
 			return
 		}
 		m.Add(conn)

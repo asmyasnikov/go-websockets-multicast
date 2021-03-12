@@ -199,11 +199,9 @@ func worker(conn *websocket.Conn, send <-chan []byte, receives chan<- []byte, wo
 					return &delay
 				}()); err != nil {
 					log.Error().Caller().Err(err).Msg("")
-					continue
 				}
-			} else {
-				receives <- data
 			}
+			receives <- data
 		}
 	}()
 

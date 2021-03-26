@@ -43,31 +43,30 @@ func New(snapshot interface{}, ignoreDelays ...bool) *Multicast {
 }
 
 // Json get diff of object if its possible otherwise marshal full object
-func (m *Multicast) Json(data interface{}) []byte {
+func (m *Multicast) Json(data interface{}) ([]byte, error) {
 	if result, ok := data.([]byte); ok {
-		return result
+		return result, nil
 	}
 
-	result, err := json.Marshal(&data)
-	if err != nil {
-		log.Error().Caller().Err(err).Msg("")
-		return nil
-	}
-	return result
+	return json.Marshal(&data)
 }
 
 // SendAll sends diff data for all connections. If diff is empty, than data will not be sent
-func (m *Multicast) SendAll(data interface{}) {
+func (m *Multicast) SendAll(data interface{}) error {
 	m.RLock()
 	defer m.RUnlock()
 	if len(m.connections) == 0 {
-		return
+		return nil
 	}
 
-	sendData := m.Json(data)
+	sendData, err := m.Json(data)
+
+	if err != nil {
+		return err
+	}
 
 	if sendData == nil {
-		return
+		return nil
 	}
 
 	m.updateSnapshot(data)
@@ -84,6 +83,8 @@ func (m *Multicast) SendAll(data interface{}) {
 			send <- sendData
 		}
 	}
+
+	return nil
 }
 
 // updateSnapshot updates snapshot in multicast
@@ -119,7 +120,11 @@ func (m *Multicast) add(conn *websocket.Conn) (chan<- []byte, <-chan []byte, <-c
 	hardWork := make(chan struct{}, 1)
 	m.Lock()
 	if m.snapshot != nil {
-		send <- m.Json(m.snapshot)
+		if b, err := m.Json(m.snapshot); err != nil {
+			log.Error().Caller().Err(err).Msg("")
+		} else {
+			send <- b
+		}
 	}
 	m.connections[conn] = send
 	m.channels[send] = hardWork

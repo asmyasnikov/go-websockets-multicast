@@ -62,7 +62,9 @@ func TestMulticast_Json(t *testing.T) {
 
 	snapshot := *NewTestData(&field1, &field2)
 	m := New(snapshot)
-	require.Equal(t, `{"field_1":10,"field_2":"test"}`, string(m.Json(snapshot)))
+	b, err := m.Json(snapshot)
+	require.NoError(t, err)
+	require.Equal(t, `{"field_1":10,"field_2":"test"}`, string(b))
 }
 
 func TestMulticast_Send(t *testing.T) {
